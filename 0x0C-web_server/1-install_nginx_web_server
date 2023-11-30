@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Update system packages
+apt update
+
+# Install Nginx
+apt install nginx -y
+
+# Create a page containing "Hello World!"
+echo "Hello World!" > /var/www/html/index.html
+
+# Configure Nginx to serve the page at root /
+cat <<EOF > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+# Restart Nginx without systemctl
+kill -s HUP $(cat /var/run/nginx.pid)
