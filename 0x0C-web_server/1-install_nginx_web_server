@@ -1,28 +1,32 @@
 #!/bin/bash
 
-# Update system packages
-apt update
+# Install nginx
+sudo apt-get -y update
+sudo apt-get -y install nginx
 
-# Install Nginx
-apt install nginx -y
-
-# Create a page containing "Hello World!"
-echo "Hello World!" > /var/www/html/index.html
-
-# Configure Nginx to serve the page at root /
-cat <<EOF > /etc/nginx/sites-available/default
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    root /var/www/html;
-    index index.html index.htm;
-
-    location / {
-        try_files $uri $uri/ =404;
+# Create a simple HTML file with the required 'Hello World' string
+echo '<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
     }
-}
-EOF
+</style>
+</head>
+<body>
+<h1>Hello World!</h1>
+</body>
+</html>' | sudo tee /var/www/html/index.html
 
-# Restart Nginx without systemctl
-kill -s HUP $(cat /var/run/nginx.pid)
+# Ensure nginx is listening on port 80, should be by default
+# but we will check the configuration file to make sure.
+# Using 'sed' to uncomment the listen directive if it's commented out
+sudo sed -i 's/# listen 80;/listen 80;/g' /etc/nginx/sites-available/default
+
+# Instead of using systemctl to restart, we use the equivalent command with service
+sudo service nginx restart
+
