@@ -1,25 +1,25 @@
 #!/usr/bin/python3
-"""
-Query Reddit API for titles of top ten posts of a given subreddit
-"""
+"""function that prints the title of forst 10 hot posts"""
+
 import requests
 
-
 def top_ten(subreddit):
-    """
-        return top ten titles for a given subreddit
-        return None if invalid subreddit given
-    """
-    # get user agent
-    # https://stackoverflow.com/questions/10606133/ -->
-    # sending-user-agent-using-requests-library-in-python
-    headers = requests.utils.default_headers()
-    headers.update({'User-Agent': 'My User Agent 1.0'})
+    url = f'https://www.reddit.com/r/{subreddit}/hot.json'
+    params = {'limit': 10}
+    header = {'User-agent': 'Chrome'}
+    try:
+        response = requests.get(url, headers=header, params=params)
+        response.raise_for_status()
 
-    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
-    r = requests.get(url, headers=headers).json()
-    top_ten = r.get('data', {}).get('children', [])
-    if not top_ten:
-        print(None)
-    for t in top_ten:
-        print(t.get('data').get('title'))
+        data = response.json()
+        posts = data["data"]["children"]
+
+        if not posts:
+            print("None")
+        else:
+            for post in posts:
+                title = post["data"]["title"]
+                print(title)
+
+    except requests.exceptions.RequestException:
+        print("None")
