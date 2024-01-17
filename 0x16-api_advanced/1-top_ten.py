@@ -1,25 +1,20 @@
 #!/usr/bin/python3
-"""function that prints the title of forst 10 hot posts"""
+# get subs
+from requests import get
+from sys import argv
 
-import requests
 
 def top_ten(subreddit):
-    url = f'https://www.reddit.com/r/{subreddit}/hot.json'
-    params = {'limit': 10}
-    header = {'User-agent': 'Chrome'}
+    """subs"""
+    head = {'User-Agent': 'Dan Kazam'}
     try:
-        response = requests.get(url, headers=header, params=params)
-        response.raise_for_status()
+        count = get('https://www.reddit.com/r/{}/hot.json?count=10'.format(
+            subreddit), headers=head).json().get('data').get('children')
+        print('\n'.join([dic.get('data').get('title')
+                         for dic in count][:10]))
+    except:
+        print('None')
 
-        data = response.json()
-        posts = data["data"]["children"]
 
-        if not posts:
-            print("None")
-        else:
-            for post in posts:
-                title = post["data"]["title"]
-                print(title)
-
-    except requests.exceptions.RequestException:
-        print("None")
+if __name__ == "__main__":
+    top_ten(argv[1])
